@@ -1,3 +1,8 @@
+///Name: Ethyn Gillies
+///ID: 1503149
+///Name:
+///ID:
+
 import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -35,8 +40,9 @@ public class KMPsearch {
         BufferedReader kmpReader = new BufferedReader(new FileReader(kmpFile));
 
         //The string we are matching against
-        //We don't actually need this but we have to skip the first line of the table so we may as well store it :3
+        //We only actually need the length of the string
         String matchString = kmpReader.readLine().trim().replaceAll("\\s+", "");
+        final int MATCH_LENGTH = matchString.length();
 
         String line;
 
@@ -67,15 +73,62 @@ public class KMPsearch {
             count++;
         }
 
-        kmpReader.close();
+        //Remove the wildcard line as it is always the same (although we dont really have to if there is an astrix it may interfere)
+        skipValues.remove(skipValues.size() - 1);
 
+        kmpReader.close();
 
         BufferedReader fileReader = new BufferedReader(new FileReader(searchFile));
 
+        //Counting lines
+        int lineCount = 0;
         
+        //For each line in the file
         while ((line = fileReader.readLine()) != null) {
+            //Increase the line num and reset the current match index
+            lineCount++;
+            int currMatch = 0;
 
-            //Analyze file
+            //For each character in the line
+            //Pointer points to start of a matching sequence, currMatch is the number of matches we have made for a sequence
+            for(int pointer = 0; pointer + currMatch < line.length();){
+                //Get the char to check
+                char currChar = line.charAt(pointer + currMatch);
+
+                //See if the character is a character in our string
+                int uniqueMatch = uniqueChar.indexOf(currChar);
+
+                //-1 means no match, reset and continue on line
+                if(uniqueMatch == -1){
+                    pointer += currMatch + 1;
+                    currMatch = 0;
+                    continue;
+                }
+
+                //Get the skip value for the match
+                int skip = skipValues.get(uniqueMatch).get(currMatch);
+
+                //Zero means a match!
+                if(skip == 0){
+                    //If the currMatch index equals the length of the string (- 1) we have found a full match
+                    if(currMatch == MATCH_LENGTH - 1){
+                        System.out.println(lineCount + " " + (pointer+1));
+                        //Break as we only match the first occurance on a line
+                        break;
+                    }
+
+                    //Found part of string so increase currMatch and continue
+                    currMatch++;
+                }
+                else{
+                    //Mismatch, increase pointer by skip value and reset currMatch
+                    pointer += skip;
+                    currMatch = 0;
+                }
+            }
         }
+
+        //Tidy kiwi :3
+        fileReader.close();
     }
 }
