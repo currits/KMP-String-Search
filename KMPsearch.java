@@ -55,19 +55,16 @@ public class KMPsearch {
 
         //For each line in the table (thats left)
         while ((line = kmpReader.readLine()) != null) {
-            // remove whitespace
-            line = line.trim().replaceAll("\\s+", "");
+            // Split at whitespace
+            String[] lines = line.trim().split("\\s+");
 
             //Add the character to the unique character list and add a list for that character in skipvalues
-            uniqueChar.add(line.charAt(0));
+            uniqueChar.add(lines[0].charAt(0));
             skipValues.add(new ArrayList<>());
 
-            //Temp string for skip values
-            String skips = line.substring(1);
-
             // Store each skip int for each unique character
-            for (int i = 0; i < skips.length(); i++) {
-                skipValues.get(count).add(Character.getNumericValue(skips.charAt(i)));
+            for (int i = 1; i < lines.length; i++) {
+                skipValues.get(count).add(Integer.parseInt(lines[i]));
             }
 
             count++;
